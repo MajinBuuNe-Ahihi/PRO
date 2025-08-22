@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import json
 import os
 import pathlib
-
+from config.connectdb import MongoDBBase
 # Load environment variables
 load_dotenv()
 
@@ -29,12 +29,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cấu hình templates và static files
+# # Cấu hình templates và static files
 current_dir = pathlib.Path(__file__).parent.parent
 templates = Jinja2Templates(directory=str(current_dir / "templates"))
 app.mount("/static", StaticFiles(directory=str(current_dir / "static")), name="static")
 
-# Kiểm tra API key
+# # Kiểm tra API key
 api_key = os.getenv("OPENAI_API_KEY", "")
 if not api_key:
     print("⚠️  Cảnh báo: Không tìm thấy OPENAI_API_KEY trong file .env")
@@ -44,14 +44,14 @@ client = OpenAI(api_key=api_key)
 def create_chat_prompt(message: str, context: str = "") -> str:
     """Tạo prompt cho AI Agent nhà hàng"""
     return f"""
-Bạn là trợ lý AI cho nhà hàng. Dựa trên yêu cầu của người dùng, hãy trả lời một cách hữu ích và thân thiện.
+# Bạn là trợ lý AI cho nhà hàng. Dựa trên yêu cầu của người dùng, hãy trả lời một cách hữu ích và thân thiện.
 
-Yêu cầu của người dùng: {message}
+# Yêu cầu của người dùng: {message}
 
-Ngữ cảnh trước đó: {context}
+# Ngữ cảnh trước đó: {context}
 
-Hãy trả lời bằng tiếng Việt một cách tự nhiên và hữu ích.
-"""
+# Hãy trả lời bằng tiếng Việt một cách tự nhiên và hữu ích.
+# """
 
 def event_stream(message: str, context: str = ""):
     """Stream response từ OpenAI"""
@@ -77,7 +77,9 @@ def event_stream(message: str, context: str = ""):
 
 @app.get("/")
 async def home(request: Request):
-    """Trang chủ với giao diện chat"""
+    mongo = MongoDBBase()
+    print(mongo)
+    print(mongo.find_all('customer'),"hello")
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/chat")
@@ -91,3 +93,4 @@ def chat_stream(request: ChatRequest):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    
