@@ -2,6 +2,7 @@
 let isStreaming = false;
 let currentSessionId = null;
 let sessions = [];
+let searchToolEnabled = false;
 
 // DOM elements
 const chatMessages = document.getElementById('chatMessages');
@@ -10,6 +11,8 @@ const sendButton = document.getElementById('sendButton');
 const sessionList = document.getElementById('sessionList');
 const currentSessionName = document.getElementById('currentSessionName');
 const sessionPanel = document.getElementById('sessionPanel');
+const searchResults = document.getElementById('searchResults');
+const searchResultsList = document.getElementById('searchResultsList');
 
 // Auto-resize textarea
 messageInput.addEventListener('input', function () {
@@ -54,7 +57,8 @@ async function sendMessage() {
             },
             body: JSON.stringify({
                 message: message,
-                session_id: getSessionId()
+                session_id: getSessionId(),
+                use_search: !!searchToolEnabled
             })
         });
 
@@ -421,3 +425,82 @@ document.addEventListener('DOMContentLoaded', function () {
     loadSessions();
     messageInput.focus();
 });
+
+// =============
+// Search client
+// =============
+async function performSearch() {
+    const input = document.getElementById('searchInput');
+    const q = (input && input.value ? input.value.trim() : '');
+    if (!q) return;
+
+    // show placeholder
+    if (searchResults) {
+        searchResults.style.display = 'block';
+        searchResultsList.innerHTML = 'Đang tìm kiếm...';
+    }
+
+    try {
+        const res = await fetch('/api/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: q, max_results: 8 })
+        });
+        if (!res.ok) {
+            throw new Error('search_failed');
+        }
+        const data = await res.json();
+        renderSearchResults(Array.isArray(data) ? data : []);
+    } catch (err) {
+        renderSearchResults([]);
+    }
+}
+
+// Search using current prompt content
+async function performSearchFromPrompt() {
+    const q = messageInput && messageInput.value ? messageInput.value.trim() : '';
+    if (!q) return;
+    const si = document.getElementById('searchInput');
+    if (si) si.value = q;
+    await performSearch();
+}
+
+function renderSearchResults(items) {
+    if (!searchResults) return;
+    searchResults.style.display = 'block';
+    if (!items || items.length === 0) {
+        searchResultsList.textContent = 'Không có kết quả';
+        return;
+    }
+    const html = items.map((it) => {
+        const title = it.title || it.body || 'Kết quả';
+        const href = it.href || it.url || '#';
+        const snippet = it.body || it.description || '';
+        return `
+            <div class="search-item">
+                <div class="search-title"><a href="${href}" target="_blank" rel="noopener">${escapeHtml(title)}</a></div>
+                <div class="search-link">${escapeHtml(href)}</div>
+                <div class="search-snippet">${escapeHtml(snippet)}</div>
+            </div>
+        `;
+    }).join('');
+    searchResultsList.innerHTML = html;
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// Toggle search tool button
+function toggleSearchTool() {
+    searchToolEnabled = !searchToolEnabled;
+    const btn = document.getElementById('searchToggleBtn');
+    if (btn) {
+        btn.classList.toggle('active', searchToolEnabled);
+    }
+}
