@@ -58,11 +58,6 @@
               <p>Hỏi đáp thông minh về quản lý nhà hàng</p>
             </div>
           </div>
-          <div class="header-right">
-            <span class="current-session-name" id="currentSessionName"
-              >Phiên mới</span
-            >
-          </div>
         </div>
 
         <div class="chat-messages" id="chatMessages">
@@ -81,8 +76,37 @@
           </div>
         </div>
 
+        <div class="search-results" id="searchResults" style="display: none">
+          <h3>Kết quả tìm kiếm</h3>
+          <div id="searchResultsList"></div>
+        </div>
+
         <div class="chat-input-container">
           <div class="input-wrapper">
+            <button
+              id="searchToggleBtn"
+              class="tool-toggle"
+              onclick="toggleSearchTool()"
+              title="Bật tắt Search web"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M21 21L16.65 16.65"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Search web</span>
+            </button>
             <textarea
               id="messageInput"
               placeholder="Nhập câu hỏi của bạn..."
@@ -106,5 +130,14 @@
     </div>
 
     <script src="{{ url_for('static', path='/js/chat.js') }}"></script>
+    <script>
+      document
+        .getElementById('searchInput')
+        .addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            performSearch()
+          }
+        })
+    </script>
   </body>
 </html>
