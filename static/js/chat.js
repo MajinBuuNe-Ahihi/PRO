@@ -13,6 +13,7 @@ const currentSessionName = document.getElementById('currentSessionName');
 const sessionPanel = document.getElementById('sessionPanel');
 const searchResults = document.getElementById('searchResults');
 const searchResultsList = document.getElementById('searchResultsList');
+const searchToggleBtn = document.getElementById('searchToggleBtn');
 
 // Auto-resize textarea
 messageInput.addEventListener('input', function () {
@@ -47,6 +48,7 @@ async function sendMessage() {
     isStreaming = true;
     sendButton.disabled = true;
     messageInput.disabled = true;
+    if (searchToggleBtn) searchToggleBtn.disabled = true;
 
     try {
         // Call API with streaming
@@ -92,8 +94,53 @@ async function sendMessage() {
             scrollToBottom();
         }
 
-        // Save assistant response to session after streaming is complete
-        if (assistantResponse.trim() && currentSessionId) {
+        // --- LOGIC MỚI ĐƯỢC THÊM VÀO ĐÂY ---
+        // Kiểm tra toàn bộ nội dung phản hồi để tạo nút PPT
+        if (assistantResponse.includes("Vui lòng nhấn vào nút 'Tạo PPT' để tải xuống!")) {
+            // Tạo nút mới
+            const pptButton = document.createElement('button');
+            pptButton.textContent = 'Tải PPT';
+            // Sử dụng Tailwind CSS (thêm lớp mt-2 để tạo khoảng trống)
+            pptButton.className = 'ppt-button';
+
+            // Gắn sự kiện click để tải file
+            pptButton.onclick = async () => {
+                pptButton.textContent = 'Đang tạo...';
+                pptButton.disabled = true;
+                try {
+                    const pptResponse = await fetch('/generate-ppt', {
+                        method: 'POST'
+                    });
+                    if (pptResponse.ok) {
+                        const blob = await pptResponse.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'bao_cao_doanh_thu.pptx';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        a.remove();
+                    } else {
+                        console.error('Lỗi khi tải file PPT');
+                    }
+                } catch (error) {
+                    console.error('Lỗi mạng khi tải PPT:', error);
+                } finally {
+                    pptButton.textContent = 'Tải PPT';
+                    pptButton.disabled = false;
+                }
+            };
+
+            const messageContentDiv = assistantMessage.querySelector('.message-content');
+            // Xóa phần text "Vui lòng nhấn..." và thêm nút
+            const textToDisplay = assistantResponse.replace("Vui lòng nhấn vào nút 'Tạo PPT' để tải xuống!", '').trim();
+            messageContentDiv.innerHTML = formatMessage(textToDisplay);
+            messageContentDiv.appendChild(pptButton);
+
+        } else if (assistantResponse.trim() && currentSessionId) {
+            // Logic cũ để lưu tin nhắn vào phiên nếu không phải là yêu cầu PPT
             const session = sessions.find(s => s.id === currentSessionId);
             if (session) {
                 session.messages.push({
@@ -104,6 +151,7 @@ async function sendMessage() {
                 saveSessions();
             }
         }
+        // --- KẾT THÚC LOGIC MỚI ---
 
     } catch (error) {
         console.error('Error:', error);
@@ -114,6 +162,7 @@ async function sendMessage() {
         isStreaming = false;
         sendButton.disabled = false;
         messageInput.disabled = false;
+        if (searchToggleBtn) searchToggleBtn.disabled = false;
         messageInput.focus();
     }
 }
