@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đánh giá độ phù hợp CV</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      textarea,
+      input[type='file'] {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      textarea:focus,
+      input[type='file']:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        width: 100%;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .result {
+        display: none;
+        margin-top: 30px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 5px solid #667eea;
+      }
+
+      .score {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .score-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 2em;
+        font-weight: bold;
+        color: white;
+      }
+
+      .score-high {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+      }
+      .score-medium {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+      }
+      .score-low {
+        background: linear-gradient(135deg, #f44336, #d32f2f);
+      }
+
+      .analysis-section {
+        margin-bottom: 20px;
+      }
+
+      .analysis-section h3 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+      }
+
+      .list-item {
+        background: white;
+        padding: 10px 15px;
+        margin: 5px 0;
+        border-radius: 5px;
+        border-left: 3px solid #667eea;
+      }
+
+      .strengths .list-item {
+        border-left-color: #4caf50;
+      }
+
+      .weaknesses .list-item {
+        border-left-color: #f44336;
+      }
+
+      .recommendations .list-item {
+        border-left-color: #ff9800;
+      }
+
+      .error {
+        background: #ffebee;
+        color: #c62828;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        border-left: 5px solid #f44336;
+      }
+
+      .nav-links {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .nav-links a {
+        color: #667eea;
+        text-decoration: none;
+        margin: 0 10px;
+        padding: 8px 16px;
+        border: 2px solid #667eea;
+        border-radius: 20px;
+        transition: all 0.3s;
+      }
+
+      .nav-links a:hover {
+        background: #667eea;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔍 Đánh giá độ phù hợp CV</h1>
+        <p>AI sẽ phân tích CV của bạn với tin tuyển dụng</p>
+      </div>
+
+      <div class="content">
+        <form id="cvForm">
+          <div class="form-group">
+            <label for="jobDescription"
+              >📋 Mô tả công việc (Job Description):</label
+            >
+            <textarea
+              id="jobDescription"
+              name="job_description"
+              placeholder="Nhập mô tả công việc, yêu cầu, kỹ năng cần thiết..."
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="cvFile">📄 Upload CV (PDF):</label>
+            <input
+              type="file"
+              id="cvFile"
+              name="cv_file"
+              accept=".pdf"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn" id="submitBtn">
+            🚀 Bắt đầu đánh giá
+          </button>
+        </form>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Đang phân tích CV và đánh giá độ phù hợp...</p>
+        </div>
+
+        <div class="result" id="result">
+          <div class="score">
+            <div class="score-circle" id="scoreCircle">0%</div>
+            <h2>Điểm phù hợp</h2>
+          </div>
+
+          <div class="analysis-section">
+            <h3>📊 Phân tích chi tiết</h3>
+            <p id="analysis"></p>
+          </div>
+
+          <div class="analysis-section strengths">
+            <h3>✅ Điểm mạnh</h3>
+            <div id="strengths"></div>
+          </div>
+
+          <div class="analysis-section weaknesses">
+            <h3>⚠️ Điểm cần cải thiện</h3>
+            <div id="weaknesses"></div>
+          </div>
+
+          <div class="analysis-section recommendations">
+            <h3>💡 Khuyến nghị</h3>
+            <div id="recommendations"></div>
+          </div>
+        </div>
+
+        <div class="nav-links">
+          <a href="/">🏠 Trang chủ</a>
+          <a href="/cv-evaluation">🔄 Đánh giá mới</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById('cvForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+
+          const formData = new FormData(this)
+          const submitBtn = document.getElementById('submitBtn')
+          const loading = document.getElementById('loading')
+          const result = document.getElementById('result')
+
+          // Hiển thị loading
+          submitBtn.disabled = true
+          submitBtn.textContent = 'Đang xử lý...'
+          loading.style.display = 'block'
+          result.style.display = 'none'
+
+          // Lấy dữ liệu form
+          const jobDescription = document.getElementById('jobDescription').value
+          const cvFile = document.getElementById('cvFile').files[0]
+
+          // Đọc file PDF sang text (gửi lên server như cũ, server sẽ xử lý)
+          const uploadData = new FormData()
+          uploadData.append('cv_file', cvFile)
+          uploadData.append('job_description', jobDescription)
+
+          try {
+            // Gửi request lên /evaluate-cv để lấy prompt đã tối ưu
+            const resp = await fetch('/evaluate-cv', {
+              method: 'POST',
+              body: uploadData,
+            })
+            const data = await resp.json()
+            if (!resp.ok) throw new Error(data.error || 'Có lỗi xảy ra')
+
+            // Tạo prompt từ kết quả server trả về (server đã dùng prompt tối ưu)
+            const prompt = data.prompt || data.analysis || jobDescription
+
+            // Gửi prompt lên /stream để nhận kết quả streaming
+            const streamResp = await fetch('/stream', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                input: [
+                  {
+                    role: 'system',
+                    content:
+                      'Bạn là AI chuyên gia tuyển dụng, trả về JSON như hướng dẫn.',
+                  },
+                  { role: 'user', content: prompt },
+                ],
+              }),
+            })
+
+            if (!streamResp.body)
+              throw new Error('Không nhận được dữ liệu streaming')
+            const reader = streamResp.body.getReader()
+            const decoder = new TextDecoder()
+            let fullText = ''
+            let done = false
+            result.innerHTML =
+              '<div class="loading">Đang phân tích và nhận kết quả từng phần...</div>'
+            result.style.display = 'block'
+            loading.style.display = 'none'
+
+            while (!done) {
+              const { value, done: streamDone } = await reader.read()
+              if (value) {
+                const chunk = decoder.decode(value)
+                fullText += chunk
+                // Hiển thị từng phần text lên giao diện (append)
+                result.innerHTML =
+                  '<pre style="white-space: pre-wrap;">' + fullText + '</pre>'
+              }
+              done = streamDone
+            }
+
+            // Khi nhận đủ, thử parse JSON và hiển thị đẹp
+            let jsonStart = fullText.indexOf('{')
+            let jsonEnd = fullText.lastIndexOf('}')
+            if (jsonStart !== -1 && jsonEnd !== -1) {
+              try {
+                const jsonStr = fullText.substring(jsonStart, jsonEnd + 1)
+                const parsed = JSON.parse(jsonStr)
+                displayResultStreaming(parsed)
+              } catch (err) {
+                // Nếu lỗi parse, giữ nguyên text
+              }
+            }
+          } catch (error) {
+            showError(error.message)
+          } finally {
+            submitBtn.disabled = false
+            submitBtn.textContent = '🚀 Bắt đầu đánh giá'
+            loading.style.display = 'none'
+          }
+        })
+
+      function displayResultStreaming(data) {
+        const result = document.getElementById('result')
+        const scoreCircle = document.getElementById('scoreCircle')
+        const analysis = document.getElementById('analysis')
+        const strengths = document.getElementById('strengths')
+        const weaknesses = document.getElementById('weaknesses')
+        const recommendations = document.getElementById('recommendations')
+
+        // Hiển thị điểm
+        const score =
+          data.score !== undefined
+            ? data.score
+            : data.suitability_score
+            ? Math.round(data.suitability_score * 100)
+            : 0
+        scoreCircle.textContent = score + '%'
+        scoreCircle.className = 'score-circle ' + getScoreClass(score / 100)
+
+        // Hiển thị phân tích
+        analysis.textContent = data.matching_analysis || data.analysis || ''
+
+        // Hiển thị điểm mạnh
+        strengths.innerHTML = (data.strengths || [])
+          .map((item) => `<div class="list-item">${item}</div>`)
+          .join('')
+        // Hiển thị điểm yếu
+        weaknesses.innerHTML = (data.weaknesses || [])
+          .map((item) => `<div class="list-item">${item}</div>`)
+          .join('')
+        // Hiển thị khuyến nghị
+        recommendations.innerHTML = (
+          data.recommendation
+            ? [data.recommendation]
+            : data.recommendations || []
+        )
+          .map((item) => `<div class="list-item">${item}</div>`)
+          .join('')
+
+        result.style.display = 'block'
+        result.scrollIntoView({ behavior: 'smooth' })
+      }
+
+      function getScoreClass(score) {
+        if (score >= 0.7) return 'score-high'
+        if (score >= 0.4) return 'score-medium'
+        return 'score-low'
+      }
+
+      function showError(message) {
+        const result = document.getElementById('result')
+        result.innerHTML = `<div class="error">❌ ${message}</div>`
+        result.style.display = 'block'
+        result.scrollIntoView({ behavior: 'smooth' })
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Agent - Trợ lý Nhà hàng</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='/css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Session Panel -->
+      <div class="session-panel" id="sessionPanel">
+        <div class="session-header">
+          <h3>Phiên làm việc</h3>
+          <button class="new-chat-btn" onclick="createNewSession()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 5V19M5 12H19"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            Phiên mới
+          </button>
+        </div>
+
+        <div class="session-list" id="sessionList">
+          <!-- Sessions will be loaded here -->
+        </div>
+
+        <div class="session-footer">
+          <button class="clear-all-btn" onclick="clearAllSessions()">
+            Xóa tất cả
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Chat Container -->
+      <div class="chat-container">
+        <div class="chat-header">
+          <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSessionPanel()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M3 12H21M3 6H21M3 18H21"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+            <div>
+              <h1>🍽️ AI Agent - Trợ lý Nhà hàng</h1>
+              <p>Hỏi đáp thông minh về quản lý nhà hàng</p>
+            </div>
+          </div>
+          <div class="header-right">
+            <span class="current-session-name" id="currentSessionName"
+              >Phiên mới</span
+            >
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="message assistant">
+            <div class="message-avatar">AI</div>
+            <div class="message-content">
+              Xin chào! Tôi là trợ lý AI cho nhà hàng. Tôi có thể giúp bạn:
+              <ul>
+                <li>Quản lý menu và đơn hàng</li>
+                <li>Phân tích doanh thu</li>
+                <li>Tư vấn về quản lý nhà hàng</li>
+                <li>Trả lời các câu hỏi khác</li>
+              </ul>
+              Bạn cần tôi giúp gì hôm nay?
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-container">
+          <div class="input-wrapper">
+            <textarea
+              id="messageInput"
+              placeholder="Nhập câu hỏi của bạn..."
+              rows="1"
+              maxlength="1000"
+            ></textarea>
+            <button id="sendButton" onclick="sendMessage()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/chat.js') }}"></script>
+  </body>
+</html>
